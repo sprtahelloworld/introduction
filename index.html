@@ -1,251 +1,258 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello World 팀(11조) 소개 페이지</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
 
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Orbit&display=swap");
-    /* CSS 부분 */
-    * {
-      font-family: "Orbit", sans-serif;
-    }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hello World 팀(11조) 소개 페이지</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-    }
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { firebaseConfig } from "./firebase-config.js";
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    body {
-      border: 5px solid #6d8fb6;
-    }
+    $('#submit-button').click(async function () {
+      let doc = {
+        message: $('#cheering-input').val()
+      };
+      console.log(doc);
+      await addDoc(collection(db, "messages"), doc);
+      console.log(doc);
 
-    /* 헤더 및 내비게이션 CSS 부분 (필요 없는 부분 지워도 됩니당!) */
-    header {
-      background-color: #6d8fb6;
-      height: 100px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+    })
 
-    header nav {
-      margin: auto 0px auto 0px;
-    }
+  </script>
+</head>
 
-    header nav a {
-      font-size: 30px;
-      margin-left: 40px;
-      color: white;
-    }
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Orbit&display=swap");
 
-    /* 메인 부분 */
-    main {
-    }
+  /* CSS 부분 */
+  * {
+    font-family: "Orbit", sans-serif;
+  }
 
-    main h1 {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+  }
 
-      font-family: "Fira Code", monospace;
-      font-weight: 500;
-      height: 60px;
-      margin: 80px 0px;
-      font-size: 50px;
-    }
+  body {
+    border: 5px solid #6d8fb6;
+  }
 
-    h2 {
-    }
+  /* 헤더 및 내비게이션 CSS 부분 (필요 없는 부분 지워도 됩니당!) */
+  header {
+    background-color: #6d8fb6;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 
-    p,
-    li {
-    }
+  header nav {
+    margin: auto 0px auto 0px;
+  }
 
-    ul {
-    }
+  header nav a {
+    font-size: 30px;
+    margin-left: 40px;
+    color: white;
+  }
 
-    /* 팀 정보 컨테이너 */
-    .teaminfo-container {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-evenly;
-    }
+  /* 메인 부분 */
+  main {}
 
-    .team-description,
-    .teampromise {
-      background-color: #dfe0e0;
-      width: 500px;
-      height: 200px;
-      padding: 0px 10px;
-      border-radius: 15px;
-    }
+  main h1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 
-    /* 팀원 소개 컨테이너 */
-    .teammember-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin-top: 20px;
-    }
+    font-family: "Fira Code", monospace;
+    font-weight: 500;
+    height: 60px;
+    margin: 80px 0px;
+    font-size: 50px;
+  }
 
-    .teammember-container h2 {
-      font-size: 25px;
-    }
+  h2 {}
 
-    .member-cards-wrapper {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-evenly;
+  p,
+  li {}
 
-      width: 100%;
-    }
+  ul {}
 
-    .member-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
+  /* 팀 정보 컨테이너 */
+  .teaminfo-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+  }
 
-    .member-card > a {
-      background-color: #dfe0e0;
-      height: 160px;
-      width: 160px;
-      border-radius: 50%;
+  .team-description,
+  .teampromise {
+    background-color: #dfe0e0;
+    width: 500px;
+    height: 200px;
+    padding: 0px 10px;
+    border-radius: 15px;
+  }
 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+  /* 팀원 소개 컨테이너 */
+  .teammember-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+  }
 
-    .member-photo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
+  .teammember-container h2 {
+    font-size: 25px;
+  }
 
-    .member-name {
-    }
+  .member-cards-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
 
-    /* 응원 메시지 섹션 */
-    .cheering-message-container {
-    }
+    width: 100%;
+  }
 
-    .cheering-message-container h2 {
-    }
+  .member-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 
-    .message-form {
-    }
+  .member-card>a {
+    background-color: #dfe0e0;
+    height: 160px;
+    width: 160px;
+    border-radius: 50%;
 
-    #cheering-input {
-    }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
 
-    #submit-button {
-    }
+  .member-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
 
-    #submit-button:hover {
-    }
+  .member-name {}
 
-    .messages {
-    }
-  </style>
+  /* 응원 메시지 섹션 */
+  .cheering-message-container {}
 
-  <body>
-    <header>
-      <nav>
-        <a href="index.html">팀 소개</a>
-        <a href="sub.html">팀원 소개</a>
-      </nav>
-    </header>
+  .cheering-message-container h2 {}
 
-    <main>
-      <h1>print("Hello, World!")</h1>
+  .message-form {}
 
-      <section class="teaminfo-container">
-        <div class="team-description">
-          <h2>우리 팀의 특징 및 목표</h2>
-          <ul>
-            <li>특징 1:</li>
-            <li>특징 2:</li>
-            <li>목표 1:</li>
-            <li>목표 2:</li>
-          </ul>
+  #cheering-input {}
+
+  #submit-button {}
+
+  #submit-button:hover {}
+
+  .messages {}
+</style>
+
+<body>
+  <header>
+    <nav>
+      <a href="index.html">팀 소개</a>
+      <a href="sub.html">팀원 소개</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>print("Hello, World!")</h1>
+
+    <section class="teaminfo-container">
+      <div class="team-description">
+        <h2>우리 팀의 특징 및 목표</h2>
+        <ul>
+          <li>특징 1:</li>
+          <li>특징 2:</li>
+          <li>목표 1:</li>
+          <li>목표 2:</li>
+        </ul>
+      </div>
+      <div class="teampromise">
+        <h2>우리 팀의 약속</h2>
+        <ul>
+          <li>매일 정해진 시간에 온라인으로 만나기</li>
+          <li>사정이 생기면 미리 팀원에게 알리기</li>
+          <li>계획표나 일정 정하면 시간 잘 지키기</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="teammember-container">
+      <h2>팀원 소개</h2>
+      <div class="member-cards-wrapper">
+        <div class="member-card">
+          <a href="member.html">
+            <img class="member-photo" src="face/test.png" alt="장미지 사진" />
+          </a>
+          <p class="member-name">장미지</p>
         </div>
-        <div class="teampromise">
-          <h2>우리 팀의 약속</h2>
-          <ul>
-            <li>매일 정해진 시간에 온라인으로 만나기</li>
-            <li>사정이 생기면 미리 팀원에게 알리기</li>
-            <li>계획표나 일정 정하면 시간 잘 지키기</li>
-          </ul>
+        <div class="member-card">
+          <a href="member.html">
+            <img class="member-photo" src="face/test.png" alt="이동재 사진" />
+          </a>
+          <p class="member-name">이동재</p>
         </div>
-      </section>
+        <div class="member-card">
+          <a href="member.html">
+            <img class="member-photo" src="face/test.png" alt="이영래 사진" />
+          </a>
+          <p class="member-name">이영래</p>
+        </div>
+        <div class="member-card">
+          <a href="member.html">
+            <img class="member-photo" src="face/test.png" alt="이훈영 사진" />
+          </a>
+          <p class="member-name">이훈영</p>
+        </div>
+        <div class="member-card">
+          <a href="member.html">
+            <img class="member-photo" src="face/test.png" alt="강성규 사진" />
+          </a>
+          <p class="member-name">강성규</p>
+        </div>
+      </div>
+    </section>
 
-      <section class="teammember-container">
-        <h2>팀원 소개</h2>
-        <div class="member-cards-wrapper">
-          <div class="member-card">
-            <a href="member.html">
-              <img class="member-photo" src="face/test.png" alt="장미지 사진" />
-            </a>
-            <p class="member-name">장미지</p>
-          </div>
-          <div class="member-card">
-            <a href="member.html">
-              <img class="member-photo" src="face/test.png" alt="이동재 사진" />
-            </a>
-            <p class="member-name">이동재</p>
-          </div>
-          <div class="member-card">
-            <a href="member.html">
-              <img class="member-photo" src="face/test.png" alt="이영래 사진" />
-            </a>
-            <p class="member-name">이영래</p>
-          </div>
-          <div class="member-card">
-            <a href="member.html">
-              <img class="member-photo" src="face/test.png" alt="이훈영 사진" />
-            </a>
-            <p class="member-name">이훈영</p>
-          </div>
-          <div class="member-card">
-            <a href="member.html">
-              <img class="member-photo" src="face/test.png" alt="강성규 사진" />
-            </a>
-            <p class="member-name">강성규</p>
-          </div>
-        </div>
-      </section>
+    <section class="cheering-message-container">
+      <h2>우리 팀에게 응원의 한마디!</h2>
+      <div class="message-form">
+        <input type="text" id="cheering-input" placeholder="따뜻한 응원 메시지를 남겨주세요 :" />
+        <button id="submit-button">남기기</button>
+      </div>
+      <div class="messages"></div>
+    </section>
+  </main>
+</body>
 
-      <section class="cheering-message-container">
-        <h2>우리 팀에게 응원의 한마디!</h2>
-        <div class="message-form">
-          <input
-            type="text"
-            id="cheering-input"
-            placeholder="따뜻한 응원 메시지를 남겨주세요 :)"
-          />
-          <button id="submit-button">남기기</button>
-        </div>
-        <div class="messages"></div>
-      </section>
-    </main>
-  </body>
 </html>
