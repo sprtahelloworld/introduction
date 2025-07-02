@@ -8,27 +8,39 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
   <script type="module">
+    // Firebase 설정 및 초기화 (2025-07-01 이동재)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getFirestore, initializeFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     import { firebaseConfig } from "./firebase-config.js";
-    
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // 응원 메시지 제출 버튼 클릭 이벤트 (2025-07-01 이동재)
     $('#submit-button').click(async function () {
       let doc = {
-        message: $('#cheering-input').val()
+        message: $('#cheeringMessagetInput').val(),
+        target: $('#selectPerson').val() // 응원 메시지와 대상 지목 정보 추가 (2025-07-02 이동재)
       };
-      console.log(doc);
       await addDoc(collection(db, "messages"), doc);
-      console.log(doc);
-
+      alert("응원 메시지가 제출되었습니다!"); // 메시지 제출 후 알림 추가 (2025-07-02 이동재)
+      window.location.reload(); // 페이지 새로고침 (2025-07-02 이동재)
     })
+
+    // db에서 메시지 가져오기
+    // 정상 작동하지만 Fetch API can not load error가 발생함 (2025-07-02 이동재)
+    let docs = await getDocs(collection(db, "messages"));
+    docs.forEach((doc) => {
+      let row = doc.data();
+      console.log(row);
+    });
 
   </script>
 </head>
@@ -43,8 +55,8 @@
 
   html,
   body {
-    height: 100%;
     margin: 0;
+    padding: 0; /* 페이지가 고정되어 height값 제거함 (2025-07-02 이동재) */
   }
 
   body {
@@ -161,20 +173,27 @@
 
   .member-name {}
 
-  /* 응원 메시지 섹션 */
-  .cheering-message-container {}
+  .highlight-name {
+    color: #f0ad4e !important;
+    font-weight: bold;
+    text-shadow: 0 0 8px #f0ad4e44;
+  }
+/* 응원 메시지 컨테이너 */
+  .cheering-message-container {
+    width: 700px;
+    margin: 5% auto;
+    border: #6d8fb6 2px solid;
+    border-radius: 15px;
+    padding: 20px;
+  }
 
-  .cheering-message-container h2 {}
-
-  .message-form {}
-
-  #cheering-input {}
-
-  #submit-button {}
-
-  #submit-button:hover {}
-
-  .messages {}
+  .btn-warning {
+    width: 100%;
+    height: 50px;
+    font-size: 20px;
+    margin-top: 2%;
+    background-color: #f0ad4e;
+  }
 </style>
 
 <body>
@@ -245,14 +264,54 @@
     </section>
 
     <section class="cheering-message-container">
-      <h2>우리 팀에게 응원의 한마디!</h2>
-      <div class="message-form">
-        <input type="text" id="cheering-input" placeholder="따뜻한 응원 메시지를 남겨주세요 :" />
-        <button id="submit-button">남기기</button>
-      </div>
-      <div class="messages"></div>
+      <form>
+        <fieldset able>
+          <legend>응원 메시지 남기기</legend>
+          <div class="cheering-message">
+            <input type="text" id="cheeringMessagetInput" class="form-control" placeholder="당근을 주세요">
+          </div>
+          <div class="select-person">
+            <label for="selectPerson" class="form-label">응원 대상 지목하기</label>
+            <select id="selectPerson" class="form-select">
+              <option value="" selected disabled>응원할 사람을 선택하세요</option>
+              <option value="장미지">장미지</option>
+              <option value="이동재">이동재</option>
+              <option value="이영래">이영래</option>
+              <option value="이훈영">이훈영</option>
+              <option value="강성규">강성규</option>
+              <option value="모두에게">모두에게</option>
+            </select>
+          </div>
+          <button id="submit-button" type="button" class="btn btn-warning">🥕🥕🥕</button>
+        </fieldset>
+      </form>
     </section>
   </main>
+  <script>
+    // 멤버 이름에 효과 적용 (2025-07-02 이동재)
+    document.addEventListener('DOMContentLoaded', function() {
+  const memberNames = ["장미지", "이동재", "이영래", "이훈영", "강성규"];
+  const memberNameElements = document.querySelectorAll('.member-name');
+  const selectElement = document.getElementById('selectPerson');
+
+  selectElement.addEventListener('change', function(e) {
+    // 기존 하이라이트 제거
+    memberNameElements.forEach(el => el.classList.remove('highlight-name'));
+
+    const selectedValue = selectElement.value;
+    // 선택된 값에 따라 하이라이트 추가
+    if (selectedValue === "모두에게") {
+    memberNameElements.forEach(el => el.classList.add('highlight-name'));
+  } else {
+    const idx = memberNames.indexOf(selectedValue);
+    if (idx !== -1) {
+      memberNameElements[idx].classList.add('highlight-name');
+    }
+  }
+  });
+});
+
+  </script>
 </body>
 
 </html>
