@@ -25,13 +25,19 @@
 
     // 응원 메시지 제출 버튼 클릭 이벤트 (2025-07-01 이동재)
     $('#submitBtn').click(async function () {
-      let doc = {
-        message: $('#cheeringMessagetInput').val(),
-        target: $('#selectPerson').val() // 응원 메시지와 대상 지목 정보 추가 (2025-07-02 이동재)
-      };
-      await addDoc(collection(db, "messages"), doc);
-      alert("응원 메시지가 제출되었습니다!"); // 메시지 제출 후 알림 추가 (2025-07-02 이동재)
-      window.location.reload(); // 페이지 새로고침 (2025-07-02 이동재)
+      if (!$('#cheeringMessagetInput').val() || !$('#selectPerson').val()) {
+        alert("응원 메시지와 응원 대상을 모두 입력해주세요!"); // 입력값이 비어있을 때 경고 추가 (2025-07-03 이동재)
+        return;
+      } else {
+        let doc = {
+          message: $('#cheeringMessagetInput').val(),
+          target: $('#selectPerson').val() // 응원 메시지와 대상 지목 정보 추가 (2025-07-02 이동재)
+        };
+        await addDoc(collection(db, "messages"), doc);
+        alert("응원 메시지가 제출되었습니다!"); // 메시지 제출 후 알림 추가 (2025-07-02 이동재)
+        window.location.reload(); // 페이지 새로고침 (2025-07-02 이동재)
+      }
+
     })
 
     // 응원 메시지 목록 아이템 생성 함수 (2025-07-03 이동재)
@@ -283,7 +289,7 @@
         </div>
       </div>
     </section>
-    <!-- 응원 메시지 목록 추가 2025-07-03 -->
+    <!-- 응원 메시지 목록 추가 2025-07-03 이동재 -->
     <section class="cheering-message-list-container">
       <h2>응원 메시지 목록</h2>
       <ul class="list-group list-group-flush">
@@ -313,15 +319,14 @@
                   <option value="모두에게">모두에게</option>
                 </select>
               </div>
-              <button id = "submitBtn" type="button" class="btn btn-warning">🥕🥕🥕</button>
+              <button id="submitBtn" type="button" class="btn btn-warning">🥕🥕🥕</button>
             </div>
-            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-4" data-bs-dismiss="toast"
+              aria-label="Close"></button>
           </div>
         </div>
       </div>
     </section>
-
-
   </main>
   <script>
     // 멤버 이름에 효과 적용 (2025-07-02 이동재)
@@ -357,4 +362,5 @@
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
   crossorigin="anonymous"></script>
+
 </html>
