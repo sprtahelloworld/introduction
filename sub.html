@@ -8,40 +8,71 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Orbit&display=swap");
+
+    * {
+      font-family: "Orbit", sans-serif;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      border: 5px solid #6d8fb6;
+    }
+
     .profile-container {
       display: flex;
     }
+
     .face {
       width: 150px;
       height: 150px;
       border-radius: 50%;
       object-fit: cover;
     }
-    .minidox{
+
+    .minidox {
       display: flex
+    }
+
+    /* 헤더 및 내비게이션 CSS 부분 (필요 없는 부분 지워도 됩니당!) */
+    header {
+      background-color: #6d8fb6;
+      height: 100px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      /* 내비게이션과 버튼을 양쪽으로 정렬 */
+      align-items: center;
+      /* 수직 중앙 정렬 */
+      padding: 0 40px;
+      /* 좌우 여백 추가 */
+    }
+
+    header nav {
+      margin: auto 0px auto 0px;
+    }
+
+    header nav a {
+      font-size: 30px;
+      margin-left: 40px;
+      color: white;
     }
   </style>
 </head>
 
 <body>
-  <header class="p-3 text-bg-dark"> <!--header 부분-->
-    <div class="container">
-      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
-            <use xlink:href="#bootstrap"></use>
-          </svg>
-        </a>
-        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-          <li><a href="#" class="nav-link px-2 text-secondary">팀소개</a></li>
-          <li><a href="#" class="nav-link px-2 text-secondary">팀원소개</a></li>
-        </ul>
-        <div class="text-end">
-          <button type="button" class="btn btn-warning">추가</button>
-          <button type="button" class="btn btn-warning">삭제</button>
-        </div>
-      </div>
+  <header>
+    <nav>
+      <a href="index.html">팀 소개</a>
+      <a href="sub.html">팀원 소개</a>
+    </nav>
+    <div class="header-buttons">
+      <button type="button" class="btn btn-warning">추가</button>
+      <button type="button" class="btn btn-warning">삭제</button>
     </div>
+     
   </header>
 
   <div class="profile-container">
@@ -63,7 +94,7 @@
         <h1>장점</h1>
         <p>장점 내용</p>
       </div>
-      <div class = minidox> <!--박스 영역-->
+      <div class=minidox> <!--박스 영역-->
         <div>
           <h3>자신만의 스타일</h3>
           <p>자신만의 스타일 내용</p>
