@@ -46,7 +46,12 @@
     function makeCheeringMessageListItem(message, target, docId) {
       let li = document.createElement("li");
       li.className = "list-group-item d-flex justify-content-between align-items-center";
+
+      if (target === "모두에게") {
+      li.textContent = `${target}: ${message}`;
+      } else {
       li.textContent = `${target}에게: ${message}`;
+      }
 
       // 삭제 부분
       li.dataset.id = docId;
