@@ -16,12 +16,14 @@
     // Firebase 설정 및 초기화 (2025-07-01 이동재)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getFirestore, initializeFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { collection, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     import { firebaseConfig } from "./firebase-config.js";
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    const adminPassword = "helloworld"
 
     // 응원 메시지 제출 버튼 클릭 이벤트 (2025-07-01 이동재)
     $('#submitBtn').click(async function () {
@@ -41,10 +43,19 @@
     })
 
     // 응원 메시지 목록 아이템 생성 함수 (2025-07-03 이동재)
-    function makeCheeringMessageListItem(message, target) {
+    function makeCheeringMessageListItem(message, target, docId) {
       let li = document.createElement("li");
-      li.className = "list-group-item";
+      li.className = "list-group-item d-flex justify-content-between align-items-center";
       li.textContent = `${target}에게: ${message}`;
+
+      // 삭제 부분
+      li.dataset.id = docId;
+
+      let deleteBtn = document.createElement("button");
+      deleteBtn.className = "btn btn-sm btn-outline-danger delete-btn";
+      deleteBtn.textContent = "삭제";
+
+      li.appendChild(deleteBtn);
       return li;
     }
 
@@ -58,9 +69,25 @@
       docs.forEach((doc) => {
         let row = doc.data();
         console.log(row.message, row.target);  // 디버그용 출력
-        let li = makeCheeringMessageListItem(row.message, row.target);
+        let li = makeCheeringMessageListItem(row.message, row.target, doc.id);
         ul.appendChild(li);
       });
+    });
+
+    // 관리자 전용 메시지 삭제하기
+    $('.cheering-message-list-container ul').on('click', '.delete-btn', async function () {
+      const password = prompt("관리자 비밀번호를 입력하세요.");
+
+      if (password == adminPassword) {
+        const li = $(this).closest('li');
+        const docId = li.data('id');
+
+        await deleteDoc(doc(db, "messages", docId));
+        alert("메시지가 성공적으로 삭제되었습니다.")
+        li.remove()
+      } else if (password != null && password != "") {
+        alert("비밀번호가 일치하지 않습니다!!");
+      }
     });
   </script>
 </head>
