@@ -1,398 +1,467 @@
 <!DOCTYPE html>
 <html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello World 팀(11조) 소개 페이지</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr"
+      crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World 팀(11조) 소개 페이지</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script type="module">
+      // Firebase 설정 및 초기화 (2025-07-01 이동재)!
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+      import {
+        getFirestore,
+        initializeFirestore,
+      } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+      import {
+        collection,
+        addDoc,
+        deleteDoc,
+        doc,
+      } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+      import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+      import { firebaseConfig } from "./firebase-config.js";
 
-  <script type="module">
-    // Firebase 설정 및 초기화 (2025-07-01 이동재)!
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, initializeFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-    import { collection, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-    import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-    import { firebaseConfig } from "./firebase-config.js";
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+      const adminPassword = "helloworld";
 
-    const adminPassword = "helloworld"
-
-    // 응원 메시지 제출 버튼 클릭 이벤트 (2025-07-01 이동재)
-    $('#submitBtn').click(async function () {
-      if (!$('#cheeringMessagetInput').val() || !$('#selectPerson').val()) {
-        alert("응원 메시지와 응원 대상을 모두 입력해주세요!"); // 입력값이 비어있을 때 경고 추가 (2025-07-03 이동재)
-        return;
-      } else {
-        let doc = {
-          message: $('#cheeringMessagetInput').val(),
-          target: $('#selectPerson').val() // 응원 메시지와 대상 지목 정보 추가 (2025-07-02 이동재)
-        };
-        await addDoc(collection(db, "messages"), doc);
-        alert("응원 메시지가 제출되었습니다!"); // 메시지 제출 후 알림 추가 (2025-07-02 이동재)
-        window.location.reload(); // 페이지 새로고침 (2025-07-02 이동재)
-      }
-
-    })
-
-    // 응원 메시지 목록 아이템 생성 함수 (2025-07-03 이동재)
-    function makeCheeringMessageListItem(message, target, docId) {
-      let li = document.createElement("li");
-      li.className = "list-group-item d-flex justify-content-between align-items-center";
-
-      if (target === "모두에게") {
-      li.textContent = `${target}: ${message}`;
-      } else {
-      li.textContent = `${target}에게: ${message}`;
-      }
-
-      // 삭제 부분
-      li.dataset.id = docId;
-
-      let deleteBtn = document.createElement("button");
-      deleteBtn.className = "btn btn-sm btn-outline-danger delete-btn";
-      deleteBtn.textContent = "삭제";
-
-      li.appendChild(deleteBtn);
-      return li;
-    }
-
-    // 페이지 로드 시 응원 메시지 목록 가져오기 (2025-07-03 이동재)
-    document.addEventListener('DOMContentLoaded', async function () {
-      // 메시지 목록 ul 지정
-      let ul = document.querySelector('.cheering-message-list-container ul');
-
-      // 메시지 가져오기
-      let docs = await getDocs(collection(db, "messages"));
-      docs.forEach((doc) => {
-        let row = doc.data();
-        console.log(row.message, row.target);  // 디버그용 출력
-        let li = makeCheeringMessageListItem(row.message, row.target, doc.id);
-        ul.appendChild(li);
-      });
-    });
-
-    // 관리자 전용 메시지 삭제하기
-    $('.cheering-message-list-container ul').on('click', '.delete-btn', async function () {
-      const password = prompt("관리자 비밀번호를 입력하세요.");
-
-      if (password == adminPassword) {
-        const li = $(this).closest('li');
-        const docId = li.data('id');
-
-        await deleteDoc(doc(db, "messages", docId));
-        alert("메시지가 성공적으로 삭제되었습니다.")
-        li.remove()
-      } else if (password != null && password != "") {
-        alert("비밀번호가 일치하지 않습니다!!");
-      }
-    });
-  </script>
-</head>
-
-<style>
-  @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Orbit&display=swap");
-
-  /* CSS 부분 */
-  * {
-    font-family: "Orbit", sans-serif;
-  }
-
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-    /* 페이지가 고정되어 height값 제거함 (2025-07-02 이동재) */
-  }
-
-  body {
-    border: 5px solid #6d8fb6;
-  }
-
-  /* 헤더 및 내비게이션 CSS 부분 (필요 없는 부분 지워도 됩니당!) */
-  header {
-    background-color: #6d8fb6;
-    height: 100px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  header nav {
-    margin: auto 0px auto 0px;
-  }
-
-  header nav a {
-    font-size: 30px;
-    margin-left: 40px;
-    color: white;
-  }
-
-  /* 메인 부분 */
-  main {}
-
-  main h1 {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    font-family: "Fira Code", monospace;
-    font-weight: 500;
-    height: 60px;
-    margin: 80px 0px;
-    font-size: 50px;
-  }
-
-  h2 {}
-
-  p,
-  li {}
-
-  ul {}
-
-  /* 팀 정보 컨테이너 */
-  .teaminfo-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-evenly;
-  }
-
-  .team-description,
-  .teampromise {
-    background-color: #dfe0e0;
-    width: 500px;
-    height: 200px;
-    padding: 0px 10px;
-    border-radius: 15px;
-  }
-
-  /* 팀원 소개 컨테이너 */
-  .teammember-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-  }
-
-  .teammember-container h2 {
-    font-size: 25px;
-  }
-
-  .member-cards-wrapper {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-evenly;
-
-    width: 100%;
-  }
-
-  .member-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .member-card>a {
-    background-color: #dfe0e0;
-    height: 160px;
-    width: 160px;
-    border-radius: 50%;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  .member-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-  }
-
-  .member-name {}
-
-  .highlight-name {
-    color: #f0ad4e !important;
-    font-weight: bold;
-    text-shadow: 0 0 8px #f0ad4e44;
-  }
-
-  .btn-warning {
-    width: 100%;
-    height: 50px;
-    font-size: 20px;
-    margin-top: 2%;
-    background-color: #f0ad4e;
-  }
-
-  .btn-outline-primary {
-    display: block;
-    margin-left: auto
-  }
-
-  .cheering-message-list-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border: #6d8fb6 2px solid;
-    border-radius: 15px;
-    padding: 20px;
-  }
-</style>
-
-<body>
-  <header>
-    <nav>
-      <a href="index.html">팀 소개</a>
-      <a href="sub.html">팀원 소개</a>
-    </nav>
-  </header>
-
-  <main>
-    <h1>print("Hello, World!")</h1>
-
-    <section class="teaminfo-container">
-      <div class="team-description">
-        <h2>우리 팀의 특징 및 목표</h2>
-        <ul>
-          <li>내향적이고 섬세한 I형 ❗</li>
-          <li>느리지만 신중하게 전진 🐢</li>
-          <li>유연하게 중심을 잡아주는 팀플레이어</li>
-          <li>목표 : 꼼꼼한 코드 리뷰로 서로의 든든한 백로그가 되어주기</li>
-        </ul>
-      </div>
-      <div class="teampromise">
-        <h2>우리 팀의 약속</h2>
-        <ul>
-          <li>매일 정해진 시간에 온라인으로 만나기</li>
-          <li>사정이 생기면 미리 팀원에게 알리기</li>
-          <li>계획표나 일정 정하면 시간 잘 지키기</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="teammember-container">
-      <h2>팀원 소개</h2>
-      <div class="member-cards-wrapper">
-        <div class="member-card">
-          <a href="sub.html">
-            <img class="member-photo" src="face/test.png" alt="장미지 사진" />
-          </a>
-          <p class="member-name">장미지</p>
-        </div>
-        <div class="member-card">
-          <a href="sub.html">
-            <img class="member-photo" src="face/dongjae.png" alt="이동재 사진" />
-          </a>
-          <p class="member-name">이동재</p>
-        </div>
-        <div class="member-card">
-          <a href="sub.html">
-            <img class="member-photo" src="face/youngrae.png" alt="이영래 사진" />
-          </a>
-          <p class="member-name">이영래</p>
-        </div>
-        <div class="member-card">
-          <a href="sub.html">
-            <img class="member-photo" src="face/hunyoung.png" alt="이훈영 사진" />
-          </a>
-          <p class="member-name">이훈영</p>
-        </div>
-        <div class="member-card">
-          <a href="sub.html">
-            <img class="member-photo" src="face/kangsunggyu.png" alt="강성규 사진" />
-          </a>
-          <p class="member-name">강성규</p>
-        </div>
-      </div>
-    </section>
-    <!-- 응원 메시지 목록 추가 2025-07-03 이동재 -->
-    <section class="cheering-message-list-container">
-      <h2>응원 메시지 목록</h2>
-      <ul class="list-group list-group-flush">
-      </ul>
-      <button type="button" id="btnToast" class="btn btn-outline-primary">응원 댓글 남기기</button>
-    </section>
-
-    <!-- 토스트 메시지로 변경 (2025-07-03 이동재) -->
-    <section class="cheering-message-container">
-      <div class="toast-container position-fixed top-50 start-50 translate-middle p-3">
-        <div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
-          <div class="d-flex">
-            <div class="toast-body">
-              <legend>응원 메시지 남기기</legend>
-              <div class="cheering-message">
-                <input type="text" id="cheeringMessagetInput" class="form-control" placeholder="당근을 주세요">
-              </div>
-              <div class="select-person">
-                <label for="selectPerson" class="form-label">응원 대상 지목하기</label>
-                <select id="selectPerson" class="form-select">
-                  <option value="" selected disabled>응원할 사람을 선택하세요</option>
-                  <option value="장미지">장미지</option>
-                  <option value="이동재">이동재</option>
-                  <option value="이영래">이영래</option>
-                  <option value="이훈영">이훈영</option>
-                  <option value="강성규">강성규</option>
-                  <option value="모두에게">모두에게</option>
-                </select>
-              </div>
-              <button id="submitBtn" type="button" class="btn btn-warning">🥕🥕🥕</button>
-            </div>
-            <button type="button" class="btn-close position-absolute top-0 end-0 m-4" data-bs-dismiss="toast"
-              aria-label="Close"></button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-  <script>
-    // 멤버 이름에 효과 적용 (2025-07-02 이동재)
-    document.addEventListener('DOMContentLoaded', function () {
-      const memberNames = ["장미지", "이동재", "이영래", "이훈영", "강성규"];
-      const memberNameElements = document.querySelectorAll('.member-name');
-      const selectElement = document.getElementById('selectPerson');
-
-      selectElement.addEventListener('change', function (e) {
-        // 기존 하이라이트 제거
-        memberNameElements.forEach(el => el.classList.remove('highlight-name'));
-
-        const selectedValue = selectElement.value;
-        // 선택된 값에 따라 하이라이트 추가
-        if (selectedValue === "모두에게") {
-          memberNameElements.forEach(el => el.classList.add('highlight-name'));
+      // 응원 메시지 제출 버튼 클릭 이벤트 (2025-07-01 이동재)
+      $("#submitBtn").click(async function () {
+        if (!$("#cheeringMessagetInput").val() || !$("#selectPerson").val()) {
+          alert("응원 메시지와 응원 대상을 모두 입력해주세요!"); // 입력값이 비어있을 때 경고 추가 (2025-07-03 이동재)
+          return;
         } else {
-          const idx = memberNames.indexOf(selectedValue);
-          if (idx !== -1) {
-            memberNameElements[idx].classList.add('highlight-name');
-          }
+          let doc = {
+            message: $("#cheeringMessagetInput").val(),
+            target: $("#selectPerson").val(), // 응원 메시지와 대상 지목 정보 추가 (2025-07-02 이동재)
+          };
+          await addDoc(collection(db, "messages"), doc);
+          alert("응원 메시지가 제출되었습니다!"); // 메시지 제출 후 알림 추가 (2025-07-02 이동재)
+          window.location.reload(); // 페이지 새로고침 (2025-07-02 이동재)
         }
       });
-    });
 
-    // 토스트 버튼 클릭 이벤트 추가(2025-07-03 이동재)
-    document.getElementById('btnToast').addEventListener('click', function () {
-      const toastElement = document.querySelector('.toast');
-      const toast = new bootstrap.Toast(toastElement, { autohide: false });
-      toast.show();
-    });
-  </script>
-</body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
-  crossorigin="anonymous"></script>
+      // 응원 메시지 목록 아이템 생성 함수 (2025-07-03 이동재)
+      function makeCheeringMessageListItem(message, target, docId) {
+        let li = document.createElement("li");
+        li.className =
+          "list-group-item d-flex justify-content-between align-items-center";
 
+        if (target === "모두에게") {
+          li.textContent = `${target}: ${message}`;
+        } else {
+          li.textContent = `${target}에게: ${message}`;
+        }
+
+        // 삭제 부분
+        li.dataset.id = docId;
+
+        let deleteBtn = document.createElement("button");
+        deleteBtn.className = "btn btn-sm btn-outline-danger delete-btn";
+        deleteBtn.textContent = "삭제";
+
+        li.appendChild(deleteBtn);
+        return li;
+      }
+
+      // 페이지 로드 시 응원 메시지 목록 가져오기 (2025-07-03 이동재)
+      document.addEventListener("DOMContentLoaded", async function () {
+        // 메시지 목록 ul 지정
+        let ul = document.querySelector(".cheering-message-list-container ul");
+
+        // 메시지 가져오기
+        let docs = await getDocs(collection(db, "messages"));
+        docs.forEach((doc) => {
+          let row = doc.data();
+          console.log(row.message, row.target); // 디버그용 출력
+          let li = makeCheeringMessageListItem(row.message, row.target, doc.id);
+          ul.appendChild(li);
+        });
+      });
+
+      // 관리자 전용 메시지 삭제하기
+      $(".cheering-message-list-container ul").on(
+        "click",
+        ".delete-btn",
+        async function () {
+          const password = prompt("관리자 비밀번호를 입력하세요.");
+
+          if (password == adminPassword) {
+            const li = $(this).closest("li");
+            const docId = li.data("id");
+
+            await deleteDoc(doc(db, "messages", docId));
+            alert("메시지가 성공적으로 삭제되었습니다.");
+            li.remove();
+          } else if (password != null && password != "") {
+            alert("비밀번호가 일치하지 않습니다!!");
+          }
+        }
+      );
+    </script>
+  </head>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Orbit&display=swap");
+
+    /* CSS 부분 */
+    * {
+      font-family: "Orbit", sans-serif;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      /* 페이지가 고정되어 height값 제거함 (2025-07-02 이동재) */
+    }
+
+    body {
+      border: 5px solid #6d8fb6;
+    }
+
+    /* 헤더 및 내비게이션 CSS 부분 (필요 없는 부분 지워도 됩니당!) */
+    header {
+      background-color: #6d8fb6;
+      height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    header nav {
+      margin: auto 0px auto 0px;
+    }
+
+    header nav a {
+      font-size: 30px;
+      margin-left: 40px;
+      color: white;
+    }
+
+    /* 메인 부분 */
+    main {
+    }
+
+    main h1 {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      font-family: "Fira Code", monospace;
+      font-weight: 500;
+      height: 60px;
+      margin: 80px 0px;
+      font-size: 50px;
+    }
+
+    h2 {
+    }
+
+    p,
+    li {
+    }
+
+    ul {
+    }
+
+    /* 팀 정보 컨테이너 */
+    .teaminfo-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-evenly;
+    }
+
+    .team-description,
+    .teampromise {
+      background-color: #dfe0e0;
+      width: 500px;
+      height: 200px;
+      padding: 0px 10px;
+      border-radius: 15px;
+    }
+
+    /* 팀원 소개 컨테이너 */
+    .teammember-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .teammember-container h2 {
+      font-size: 25px;
+    }
+
+    .member-cards-wrapper {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-evenly;
+
+      width: 100%;
+    }
+
+    .member-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .member-card > a {
+      background-color: #dfe0e0;
+      height: 160px;
+      width: 160px;
+      border-radius: 50%;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .member-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .member-name {
+    }
+
+    .highlight-name {
+      color: #f0ad4e !important;
+      font-weight: bold;
+      text-shadow: 0 0 8px #f0ad4e44;
+    }
+
+    .btn-warning {
+      width: 100%;
+      height: 50px;
+      font-size: 20px;
+      margin-top: 2%;
+      background-color: #f0ad4e;
+    }
+
+    .btn-outline-primary {
+      display: block;
+      margin-left: auto;
+    }
+
+    .cheering-message-list-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: #6d8fb6 2px solid;
+      border-radius: 15px;
+      padding: 20px;
+    }
+  </style>
+
+  <body>
+    <header>
+      <nav>
+        <a href="index.html">팀 소개</a>
+        <a href="sub.html">팀원 소개</a>
+      </nav>
+    </header>
+
+    <main>
+      <h1>print("Hello, World!")</h1>
+
+      <section class="teaminfo-container">
+        <div class="team-description">
+          <h2>우리 팀의 특징 및 목표</h2>
+          <ul>
+            <li>내향적이고 섬세한 I형 ❗</li>
+            <li>느리지만 신중하게 전진 🐢</li>
+            <li>유연하게 중심을 잡아주는 팀플레이어</li>
+            <li>목표 : 꼼꼼한 코드 리뷰로 서로의 든든한 백로그가 되어주기</li>
+          </ul>
+        </div>
+        <div class="teampromise">
+          <h2>우리 팀의 약속</h2>
+          <ul>
+            <li>매일 정해진 시간에 온라인으로 만나기</li>
+            <li>사정이 생기면 미리 팀원에게 알리기</li>
+            <li>계획표나 일정 정하면 시간 잘 지키기</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="teammember-container">
+        <h2>팀원 소개</h2>
+        <div class="member-cards-wrapper">
+          <div class="member-card">
+            <a href="sub.html">
+              <img class="member-photo" src="face/miji.png" alt="장미지 사진" />
+            </a>
+            <p class="member-name">장미지</p>
+          </div>
+          <div class="member-card">
+            <a href="sub.html">
+              <img
+                class="member-photo"
+                src="face/dongjae.png"
+                alt="이동재 사진"
+              />
+            </a>
+            <p class="member-name">이동재</p>
+          </div>
+          <div class="member-card">
+            <a href="sub.html">
+              <img
+                class="member-photo"
+                src="face/youngrae.png"
+                alt="이영래 사진"
+              />
+            </a>
+            <p class="member-name">이영래</p>
+          </div>
+          <div class="member-card">
+            <a href="sub.html">
+              <img
+                class="member-photo"
+                src="face/hunyoung.png"
+                alt="이훈영 사진"
+              />
+            </a>
+            <p class="member-name">이훈영</p>
+          </div>
+          <div class="member-card">
+            <a href="sub.html">
+              <img
+                class="member-photo"
+                src="face/kangsunggyu.png"
+                alt="강성규 사진"
+              />
+            </a>
+            <p class="member-name">강성규</p>
+          </div>
+        </div>
+      </section>
+      <!-- 응원 메시지 목록 추가 2025-07-03 이동재 -->
+      <section class="cheering-message-list-container">
+        <h2>응원 메시지 목록</h2>
+        <ul class="list-group list-group-flush"></ul>
+        <button type="button" id="btnToast" class="btn btn-outline-primary">
+          응원 댓글 남기기
+        </button>
+      </section>
+
+      <!-- 토스트 메시지로 변경 (2025-07-03 이동재) -->
+      <section class="cheering-message-container">
+        <div
+          class="toast-container position-fixed top-50 start-50 translate-middle p-3"
+        >
+          <div
+            class="toast align-items-center"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+          >
+            <div class="d-flex">
+              <div class="toast-body">
+                <legend>응원 메시지 남기기</legend>
+                <div class="cheering-message">
+                  <input
+                    type="text"
+                    id="cheeringMessagetInput"
+                    class="form-control"
+                    placeholder="당근을 주세요"
+                  />
+                </div>
+                <div class="select-person">
+                  <label for="selectPerson" class="form-label"
+                    >응원 대상 지목하기</label
+                  >
+                  <select id="selectPerson" class="form-select">
+                    <option value="" selected disabled>
+                      응원할 사람을 선택하세요
+                    </option>
+                    <option value="장미지">장미지</option>
+                    <option value="이동재">이동재</option>
+                    <option value="이영래">이영래</option>
+                    <option value="이훈영">이훈영</option>
+                    <option value="강성규">강성규</option>
+                    <option value="모두에게">모두에게</option>
+                  </select>
+                </div>
+                <button id="submitBtn" type="button" class="btn btn-warning">
+                  🥕🥕🥕
+                </button>
+              </div>
+              <button
+                type="button"
+                class="btn-close position-absolute top-0 end-0 m-4"
+                data-bs-dismiss="toast"
+                aria-label="Close"
+              ></button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script>
+      // 멤버 이름에 효과 적용 (2025-07-02 이동재)
+      document.addEventListener("DOMContentLoaded", function () {
+        const memberNames = ["장미지", "이동재", "이영래", "이훈영", "강성규"];
+        const memberNameElements = document.querySelectorAll(".member-name");
+        const selectElement = document.getElementById("selectPerson");
+
+        selectElement.addEventListener("change", function (e) {
+          // 기존 하이라이트 제거
+          memberNameElements.forEach((el) =>
+            el.classList.remove("highlight-name")
+          );
+
+          const selectedValue = selectElement.value;
+          // 선택된 값에 따라 하이라이트 추가
+          if (selectedValue === "모두에게") {
+            memberNameElements.forEach((el) =>
+              el.classList.add("highlight-name")
+            );
+          } else {
+            const idx = memberNames.indexOf(selectedValue);
+            if (idx !== -1) {
+              memberNameElements[idx].classList.add("highlight-name");
+            }
+          }
+        });
+      });
+
+      // 토스트 버튼 클릭 이벤트 추가(2025-07-03 이동재)
+      document
+        .getElementById("btnToast")
+        .addEventListener("click", function () {
+          const toastElement = document.querySelector(".toast");
+          const toast = new bootstrap.Toast(toastElement, { autohide: false });
+          toast.show();
+        });
+    </script>
+  </body>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+    crossorigin="anonymous"
+  ></script>
 </html>
